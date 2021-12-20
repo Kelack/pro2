@@ -43,6 +43,11 @@ function canCrossOutNumbers($number, $seekSum, $count)
             $sum += $decreasingNumber % 10;
             $decreasingNumber = intdiv($decreasingNumber, 10);
 
+            if($seekSum < $sum)
+            {
+                break;
+            }
+
             if($seekSum == $sum)
             {
                 if($k+1 != $count or $examination)
