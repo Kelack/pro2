@@ -3,9 +3,11 @@
 // установить,  можно  ли  вычеркнуть  в  нем  некоторые  цифры, чтобы сумма оставшихся равнялась заданному числу к.
 
 $seekSum = 18; // Найдет много вариантов
+$counter = 0;
+$conclusion = '';
 
-//число 99 не подойте. Хоть сумма = 18, в нем нечего вычеркнуть. 
-for($i = 99; $i < 2000; $i++)
+//число 99 не подойдет. Хоть сумма = 18, в нем нечего вычеркнуть.
+for($i = 0; $i < 2000; $i++)
 {
     $number = $i;
     $count = floor(log10($number)) + 1;
@@ -14,23 +16,31 @@ for($i = 99; $i < 2000; $i++)
     
     if($answer)
     {
-        echo "В числе $number можно вычеркнуть некоторые цифры, чтобы сумма остальных равнялась $seekSum <br><br>";
+        $counter++;
+        $conclusion .= "В числе $number можно вычеркнуть некоторые цифры, чтобы сумма остальных равнялась $seekSum <br><br>";
     }
 }
+
+echo "Количество найденых чисел = $counter <br><br> $conclusion";
 
 
 
 function canCrossOutNumbers($number, $seekSum, $count) 
 {
     //Проверка
+        // $examination == false если в $number нету цифры 0. Если в $number есть цифра 0, то $examination == true
     $examination = false;
+    $examinationNumber = $number;
+
     for($i = 0; $i < $count; $i++)
     {
-        if($number % 10 == 0)
+        if($examinationNumber % 10 == 0)
         {
             $examination = true;
             break;
         }
+
+        $examinationNumber = intdiv($examinationNumber, 10);
     }
 
     for($i = 0; $i < $count; $i++)
@@ -49,8 +59,9 @@ function canCrossOutNumbers($number, $seekSum, $count)
             }
 
             if($seekSum == $sum)
-            {
-                if($k+1 != $count or $examination)
+            {   
+                //проверка на, если в $number мы получили нужную сумму из цифр $number, остались ли какие-либо другие цифры в $number
+                if($k+1 < $count or $examination)
                 {
                     return true;
                 }
@@ -64,7 +75,8 @@ function canCrossOutNumbers($number, $seekSum, $count)
     return false;
 }
 
-function numberPermutation ($number, $count)
+// Сдвиг $number на одну позицию. Пример, $number = 123, return $number = 312
+function numberPermutation($number, $count)
 {
     $lastNumber =  $number % 10;
     $number = intdiv($number, 10);
