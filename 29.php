@@ -3,40 +3,45 @@
 // установить,  можно  ли  вычеркнуть  в  нем  некоторые  цифры, чтобы сумма оставшихся равнялась заданному числу к.
 
 // Промежуток
-$x = 175000;
-$y = 180000;
+$x = 1000;
+$y = 100+$x;
 
 // Нужная сумма
-$seekSum = 40; 
+$seekSum = 7; 
 
 // Для вывода
 $counter = 0;
 $conclusion = '';
-
+$k = 0;
 for($i = $x; $i < $y; $i++)
 {
-    // $i = 127219;
+
     $number = $i;
     $count = floor(log10($number)) + 1;
 
-    $answer = canCrossOutNumbers($number, $seekSum, $count);
-    
+    $answer = canCrossOutNumbers($number, $seekSum, $count, $sign);
+    $k++;
     if($answer)
     {
         $counter++;
-        $conclusion .= "В числе $number можно вычеркнуть некоторые цифры, чтобы сумма остальных равнялась $seekSum <br><br>";
+        $conclusion .= "$k) В числе $number (функция с $sign)<br><br>";
+    }
+    else
+    {
+        
+        $conclusion .= "$k) В числе $number незя <br><br>";
     }
 }
 
-echo "<br>Промежуток от $x до $y; Количество найденых чисел  = $counter <br><br> $conclusion";
+echo "Промежуток от $x до $y; Количество найденых чисел  = $counter; сумма должна быть = $seekSum<br><br> $conclusion";
 
 
 
-function canCrossOutNumbers($number, $seekSum, $count) 
+function canCrossOutNumbers($number, $seekSum, $count, &$sign) 
 {
     // $zeroСheck == false если в $number нету цифры 0. Если в $number есть цифра 0, то $zeroСheck == true
     $zeroСheck  = findDigitZero($number, $count);
-
+    
     for($i = 0; $i < $count; $i++)
     {
         $decreasingNumber = $number;
@@ -50,13 +55,15 @@ function canCrossOutNumbers($number, $seekSum, $count)
 
             if($seekSum < $sum)
             {
+                // echo "$sum = sum $goneNumbers = goneNumbers<br>";
                 if(subtractIfSumMore($sum, $seekSum, $goneNumbers, $count))
                 {
-                    // echo ' - ';
+                    $sign = '—';
                     return true;
                 }
 
                 $sum -= $decreasingNumber % 10;
+                $goneNumbers = intdiv($goneNumbers,10);
 
                 $decreasingNumber = intdiv($decreasingNumber, 10);
                 continue;
@@ -64,13 +71,15 @@ function canCrossOutNumbers($number, $seekSum, $count)
 
             if($seekSum == $sum)
             {   
+                // echo "seekSum = $seekSum sum = $sum k = $k count = $count<br>";
+
                 //проверка на, если в $number мы получили нужную сумму из цифр $number, остались ли какие-либо другие цифры в $number
                 if(($k+1 < $count) or $zeroСheck)
                 {
-                    // echo '+';
+                    $sign = '+';
                     return true;
                 }
-                break 2;
+                break 1;
             }
 
             $decreasingNumber = intdiv($decreasingNumber, 10);
@@ -125,13 +134,15 @@ function subtractIfSumMore($sum, $seekSum, $takeSubtract, $countNumber)
         $decreasingNumber = $takeSubtract;
         $currentSum = $sum;
 
+        // echo "<br>$currentSum = currentSum $decreasingNumber = decreasingNumber<br>";
+
         for($k = 0; $k < $countTakeSubtract; $k++)
         {
             $currentSum -= $decreasingNumber % 10;
 
             if($seekSum > $currentSum)
             {
-                //echo "<br>$currentSum = sum $decreasingNumber = decreasingNumber<br>";
+                // echo "<br>$currentSum = sum $decreasingNumber = decreasingNumber<br>";
                 break;
             }
 
@@ -142,7 +153,7 @@ function subtractIfSumMore($sum, $seekSum, $takeSubtract, $countNumber)
                 {
                     return true;
                 }
-                break 2;
+                break 1;
             }
 
             $decreasingNumber = intdiv($decreasingNumber, 10);
