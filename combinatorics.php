@@ -5,7 +5,7 @@ set_error_handler('errorDisplay');
 try
 {
     //Проверка на тип значений введенных в класс. Если пройдена успешно, продолжение работы; если нет, остановка класса.
-    $outputCombinations = new OutputCombinations('0', 1);
+    $outputCombinations = new OutputCombinations('1234567',5);
     //Вывод получившихся комбинаций.
     echo $outputCombinations;
 }
@@ -20,6 +20,7 @@ class OutputCombinations
     private $characteString;
     private $long;
     private $length;
+    private $countingCombinations = 0;
 
     public function __construct(string $characteString, int $long)
     {
@@ -33,62 +34,52 @@ class OutputCombinations
 
     private function calculations()
     {
-        $alteredCharacteString = $this->characteString;
-        $combinations = '';
-        $countingCombinations = 0;
-
-        if($this->long == 1)
-        {
-            for($i = 0; $i < $this->length; $i++)
-            {
-                $combinations .= "$alteredCharacteString[$i] <br>";
-                $countingCombinations++;
-            }
-            return "Вывод комбинаций:<br> $combinations <br> Количество комбинаций = $countingCombinations <br>";
-        }
-
-        //Вызов функции для нахождения всех возможных комбинаций без исключений 
-        $combinations = $this->calculationWithoutException($alteredCharacteString, $combinations, $countingCombinations);
+        //Вызов функции для нахождения всех возможных комбинаций
+        $combinations = $this->calculationWithoutException($this->characteString, '', $this->long);
         
-        return "Вывод комбинаций:<br> $combinations <br> Количество комбинаций = $countingCombinations <br>";
+        return "Нашло $this->countingCombinations комбинаций.<br><br> Комбинации:<br> $combinations";
     }
 
-    private function calculationWithoutException($alteredCharacteString, $combinations, &$countingCombinations)
+    private function calculationWithoutException($characteString, $whatToAdd, $long)
     {
-        //Используем число, потом его сдвигаем на одну позицию; повторяем, пока число не вернется в изначальное состояние.
-        for($x = 0; $x < $this->length; $x++)
-        {
-            //Проходимся по всему полученому числу, добавляем полученые комбинации.
-            for($i = 1; $i < $this->length; $i++)
+        $answer = '';
+        $countString = strlen($characteString);
+    
+        for($i = 1; $i <= $countString; $i++)
+        {   
+            if($long == 1)
             {
-                $combination = $alteredCharacteString[0];
-                $item = $i;
-
-                //Собираем число. Первый элемент этого числа всегда = $alteredCharacteString[0]. Количество элементов в собраном числе = $this->long.
-                for($k = 1; $k < $this->long; $k++)
-                {
-                    //Если мы выходим за границу количества элементов изначального числа, в следующем повторении цикла, останавливаем 2 цикла.
-                    if($item+1 == $this->length+1)
-                    {
-                        break 2;
-                    }
-
-                    $combination .= $alteredCharacteString[$item];
-                    $item++;
-                }
-
-                $combinations .= "$combination <br>";
-
-                $countingCombinations++;
+                $this->countingCombinations++;
+                $answer .= '<font size="1">' .$this->countingCombinations .') </font>' .$whatToAdd .$characteString[0] .'<br>'; 
             }
+    
+            $characteString1 = $characteString; $characteString1 =  substr($characteString1, 1);
+    
+            $answer .= $this->calculationWithoutException($characteString1, $whatToAdd .$characteString[0], $long-1);
+    
+            
+            $firstElement = $characteString[0];
+            $characteString = substr_replace($characteString, '', 0, 1);
+            $characteString .= $firstElement;
+        }
+        
+        return $answer;
+    } 
 
-            $firstElement = $alteredCharacteString[0];
-            $alteredCharacteString = substr_replace($alteredCharacteString, '', 0, 1);
-            $alteredCharacteString .= $firstElement;
+    private function placementWithoutRepetitions()
+    {
+        return (($this->factorialNumber($this->length)) / ($this->factorialNumber($this->length - $this->long)));
+    } 
+
+    private function factorialNumber($number)
+    {
+        if($number <=1) 
+        {
+            return 1;
         }
 
-        return $combinations;
-    } 
+        return $number * $this->factorialNumber($number-1); 
+    }
 
     //1)метод записи ошибки
     private function errorRecording($characteString, $long, &$exe)
@@ -137,7 +128,8 @@ class OutputCombinations
     
     public function __toString()
     {
-        return "Изначальная строка символов = '$this->characteString'; Установленная длинна комбинаций = $this->long <br><br>"
+        return "Изначальная строка символов = '$this->characteString'; Длинна комбинаций = $this->long <br> По формуле надо найти  "
+        .$this->placementWithoutRepetitions() .' комбинаций.<br>'
         //вывод основного алгоритма
         .$this->calculations();
     }
@@ -146,5 +138,5 @@ class OutputCombinations
 //3)метод отображения ошибки
 function errorDisplay($no, $msg, $file, $line)
 {
-    echo "Произошел - FATAL ERROR!!! <br><br> Значение ошибки - $msg. <br><br> Где находиться ошибка - $file. <br><br> Номер строки - $line.";
+    echo "Произошел - FATAL ERROR!!! <br><br> Значение ошибки - $msg. <br><br> Где находиться ошибка - $file. <br><br> Номер строки - $line.<br><br>";
 }
